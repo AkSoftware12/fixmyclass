@@ -56,8 +56,8 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              height: 150.sp,
-              width: 150.sp,
+              height: 80.sp,
+              width: 80.sp,
               decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.all(Radius.circular(15.sp))
@@ -67,8 +67,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
                 child: Image.asset(
                   'assets/playstore.png',
-                  width: 130.sp,
-                  height: 130.sp,
+                  width: 80.sp,
+                  height: 80.sp,
                 ),
               ),
             ),
@@ -87,7 +87,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
             SizedBox(height: 20.sp), // Spacing before loader
             CupertinoActivityIndicator(
-              radius: 25,
+              radius: 10,
               color: Colors.white,
             ),
           ],

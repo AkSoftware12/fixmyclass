@@ -112,7 +112,7 @@ class CustomBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = [
-      {'icon': Icons.home, 'label': 'Home'},
+      {'icon': Icons.home, 'label': 'StudentHome'},
       {'icon': Icons.phone, 'label': 'IVR Call'},
       {'icon': Icons.qr_code_scanner, 'label': 'Scan QR'},
       {'icon': Icons.contact_phone, 'label': 'Helplines'},

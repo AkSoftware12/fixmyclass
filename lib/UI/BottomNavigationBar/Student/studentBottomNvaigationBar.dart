@@ -7,6 +7,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../Utils/color.dart';
 import '../../../Utils/string.dart';
 import '../../Login/Login/login.dart';
+import 'StudentCourse/student_course.dart';
+import 'StudentHome/student_home.dart';
+import 'StudentPractice/student_practice.dart';
+import 'StudentProfile/student_profile.dart';
+import 'StudentQuiz/student_quiz.dart';
 
 
 
@@ -24,31 +29,33 @@ class _HomePageState extends State<BottomNavigationBarScreen> {
 
 
 
-
-
-
-
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
       backgroundColor: Colors.white,
       key: _scaffoldKey,
       appBar: AppBar(
-        backgroundColor: AppColors.navyBlue,
+        backgroundColor: AppColors.navyBlue, // Uncomment if you want to use custom color
+        elevation: 0, // Flat look for modern UI
         iconTheme: IconThemeData(color: Colors.white),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(
-              height: 40.sp,
-              child: Image.asset('assets/calling_text.gif'),
+            // Uncomment and adjust if you want the GIF logo
+            // SizedBox(
+            //   height: 40.sp,
+            //   child: Image.asset('assets/calling_text.gif'),
+            // ),
+            Expanded(
+              child: Image.asset('assets/textlogo.png',height: 24.sp,)
             ),
+            // Add a subtle status indicator or call button for better UX
           ],
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(20.sp),
-            bottomRight: Radius.circular(20.sp),
+            bottomLeft: Radius.circular(00.sp),
+            bottomRight: Radius.circular(00.sp),
           ),
         ),
         leading: Builder(
@@ -58,9 +65,16 @@ class _HomePageState extends State<BottomNavigationBarScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4.sp,
+                    offset: Offset(0, 2.sp),
+                  ),
+                ],
               ),
               child: IconButton(
-                icon: Icon(Icons.menu, color: Colors.black),
+                icon: Icon(Icons.dashboard_rounded, color: AppColors.navyBlue),
                 onPressed: () {
                   Scaffold.of(context).openDrawer();
                 },
@@ -69,13 +83,55 @@ class _HomePageState extends State<BottomNavigationBarScreen> {
           ),
         ),
         actions: [
-
+          // Add notification icon for better engagement
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: Stack(
+                  children: [
+                    Icon(Icons.notifications, color: Colors.white),
+                    // Optional: Add a badge for unread count
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        padding: EdgeInsets.all(2.sp),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: BoxConstraints(minWidth: 12.sp, minHeight: 12.sp),
+                        child: Text(
+                          '3', // Dynamic unread count
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                onPressed: () {
+                  // Handle notifications
+                },
+              ),
+            ),
+          ),
+          // Add profile or settings icon
         ],
       ),
       drawer: CustomDrawer(),
       bottomNavigationBar: Container(
         color: Colors.grey.shade200,
-        height: 70.sp,
+        height: 50.sp,
         child: CustomBottomNavBar(
           currentIndex: selected,
           onTap: (index) {
@@ -89,7 +145,11 @@ class _HomePageState extends State<BottomNavigationBarScreen> {
           controller: controller,
           physics: const NeverScrollableScrollPhysics(), // 👈 Swipe disable
           children: [
-          //   const IVRCallScreen(),
+            StudentHomePage(),
+            CoursesScreen(),
+            PracticeScreen(),
+            QuizPracticeScreen(),
+            ProfileScreen(),
           //   const IVRCallScreen(),
           //   const HelplineScreen(),
           //   const SOSScreen(),
@@ -113,19 +173,16 @@ class CustomBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final items = [
       {'icon': Icons.home, 'label': 'Home'},
-      {'icon': Icons.phone, 'label': 'IVR Call'},
-      {'icon': Icons.qr_code_scanner, 'label': 'Scan QR'},
-      {'icon': Icons.contact_phone, 'label': 'Helplines'},
-      {'icon': Icons.sos, 'label': 'SOS'},
+      {'icon':Icons.book, 'label': 'Courses'},
+      {'icon': Icons.question_answer, 'label': 'Practice'},
+      {'icon': Icons.quiz_outlined, 'label': 'Quizzes'},
+      {'icon': Icons.person, 'label': 'Profile'},
     ];
 
     return Container(
       color: Colors.grey.shade200,
       child: BottomAppBar(
         color: AppColors.navyBlue,
-        // replace with AppColors.navyBlue if you have it
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 5.sp,
         padding: EdgeInsets.zero,
         clipBehavior: Clip.none,
         child: Row(
@@ -133,38 +190,40 @@ class CustomBottomNavBar extends StatelessWidget {
           children: List.generate(items.length, (index) {
             final isSelected = currentIndex == index;
 
-            return GestureDetector(
+            return  GestureDetector(
               onTap: () => onTap(index),
-              child: SizedBox(
-                height: 70.sp, // ✅ height bhi responsive
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (index == 2) ...[
-                      SizedBox(height: 28.sp), // sirf FAB ke liye empty gap
-                    ] else ...[
+              child: Container(
+                width: 70.sp,
+                decoration: BoxDecoration(
+                  color: isSelected ? Colors.blueAccent : Colors.transparent,
+                  borderRadius: BorderRadius.circular(0.sp),
+                ),
+                child: SizedBox(
+                  height: 50.sp, // responsive height
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                       Icon(
                         items[index]['icon'] as IconData,
                         color: isSelected ? Colors.white : Colors.grey,
                         size: isSelected ? 25.sp : 21.sp,
                       ),
-                      SizedBox(height: 2.sp), // responsive gap
+                      SizedBox(height: 2.sp),
                       Text(
                         items[index]['label'] as String,
                         style: TextStyle(
                           fontSize: 10.sp,
-                          fontWeight: isSelected
-                              ? FontWeight.bold
-                              : FontWeight.w600,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                           color: isSelected ? Colors.white : Colors.grey,
                         ),
                       ),
                     ],
-                  ],
+                  ),
                 ),
               ),
             );
+
           }),
         ),
       ),
