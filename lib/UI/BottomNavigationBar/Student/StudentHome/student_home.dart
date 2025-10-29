@@ -1,11 +1,17 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:fixmyclass/UI/BottomNavigationBar/Student/SeeAll/AllCourse/all_course_screen.dart';
+import 'package:fixmyclass/UI/BottomNavigationBar/Student/SeeAll/RecommendedForYou/recommended_screen.dart';
 import 'package:fixmyclass/Utils/HexColorCode/HexColor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../Utils/color.dart';
+import '../SeeAll/DailyGoals/daily_goals_screen.dart';
+import '../WeeklyProgressReport/weekly_report_screen.dart';
 
 class StudentHomePage extends StatefulWidget {
   const StudentHomePage({super.key});
@@ -48,6 +54,100 @@ class _StudentHomePageState extends State<StudentHomePage>
     setState(() => _currentIndex = nextPage);
     Future.delayed(const Duration(seconds: 4), _autoSlide);
   }
+
+
+  Widget _buildBannerSlider() {
+    return Column(
+      children: [
+        SizedBox(height: 3.h),
+        CarouselSlider.builder(
+          itemCount: _images.length,
+          options: CarouselOptions(
+            height: 140.h,
+            autoPlay: true,
+            enlargeCenterPage: true,
+            aspectRatio: 16 / 9,
+            autoPlayInterval: 5.seconds,
+            viewportFraction: 1,
+            onPageChanged: (index, reason) {
+              setState(() => _currentIndex = index);
+            },
+          ),
+          itemBuilder: (context, index, realIndex) {
+            return Container(
+              margin: EdgeInsets.symmetric(horizontal: 10.w),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20.r),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.network(
+                      _images[index],
+                      fit: BoxFit.fill,
+                      frameBuilder:
+                          (context, child, frame, wasSynchronouslyLoaded) {
+                        if (wasSynchronouslyLoaded) {
+                          return child; // Image is already loaded
+                        }
+                        return frame != null
+                            ? child // Image loaded successfully
+                            : const Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation(
+                                Color(0xFFBBDEFB)), // Colors.blue[200]
+                          ),
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) => Icon(
+                        Icons.broken_image,
+                        size: 40.sp,
+                        // Assuming you're using a package like flutter_screenutil for .sp
+                        color: Colors.grey[300],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+        SizedBox(height: 15.sp),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+            _images.length,
+                (index) => AnimatedContainer(
+              duration: 300.ms,
+              width: _currentIndex == index ? 15.w : 8.w,
+              height: 4.h,
+              margin: EdgeInsets.symmetric(horizontal: 4.w),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4.r),
+                color: _currentIndex == index
+                    ? Colors.blue[800]
+                    : Colors.grey[400],
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: 15.sp),
+
+      ],
+    );
+  }
+
 
   @override
   void dispose() {
@@ -124,106 +224,69 @@ class _StudentHomePageState extends State<StudentHomePage>
       backgroundColor: Colors.grey.shade100,
       body: CustomScrollView(
         slivers: [
-          SliverToBoxAdapter(child: SizedBox(height: 2.sp)),
-
-          // Premium Animated App Bar with Search & Notifications
           SliverAppBar(
-            backgroundColor: Colors.grey.shade100,
-            expandedHeight: 150.sp,
+            expandedHeight: 240.sp,
+            backgroundColor:  Colors.white,
+            iconTheme: IconThemeData(color: AppColors.navyBlue),
             floating: false,
+            pinned: true, // ✅ keeps search bar visible on scroll
             automaticallyImplyLeading: false,
-            pinned: false,
-            flexibleSpace: FlexibleSpaceBar(
+            title:TextField(
+              decoration: InputDecoration(
+                hintText: 'Search courses...',
+                prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
+                suffixIcon: Icon(Icons.mic_rounded, color: Colors.grey.shade600, size: 22.sp),
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.9),
+
+                // ✅ 1.sp border with rounded corners
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25.r),
+                  borderSide: BorderSide(color: Colors.grey.shade400, width: 1.sp),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25.r),
+                  borderSide: BorderSide(color: Colors.grey, width: 1.sp),
+                ),
+
+                contentPadding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 12.w),
+              ),
+              style: TextStyle(fontSize: 14.sp, color: Colors.black87),
+              onChanged: (value) {
+                // Search logic
+              },
+            ),
+
+
+        flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // 🌄 Auto sliding images
-                  PageView.builder(
-                    controller: _pageController,
-                    onPageChanged: (index) {
-                      setState(() => _currentIndex = index);
-                    },
-                    itemCount: _images.length,
-                    itemBuilder: (context, index) {
-                      return CachedNetworkImage(
-                        imageUrl: _images[index],
-                        fit: BoxFit.cover,
-                        fadeInDuration: const Duration(milliseconds: 400),
-                        placeholder: (context, url) =>
-                            Container(color: Colors.grey.shade300),
-                        errorWidget: (context, url, error) =>
-                            const Icon(Icons.broken_image, color: Colors.grey),
-                      );
-                    },
-                  ),
 
-
-                ],
-              ),
-            ),
-          ),
-
-          SliverToBoxAdapter(
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.sp),
-              padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
-              // decoration: BoxDecoration(
-              //   color: Colors.transparent,
-              //   borderRadius: BorderRadius.circular(14.r),
-              //   boxShadow: [
-              //     BoxShadow(
-              //       color: Colors.grey.withOpacity(0.15),
-              //       blurRadius: 8,
-              //       offset: const Offset(0, 4),
-              //     ),
-              //   ],
-              //   border: Border.all(color: Colors.grey.shade300),
-              // ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Container(
-                  //   padding: const EdgeInsets.symmetric(
-                  //     horizontal: 8,
-                  //     vertical: 2,
-                  //   ),
-                  //   decoration: BoxDecoration(
-                  //     color: Colors.black.withOpacity(0.4),
-                  //     borderRadius: BorderRadius.circular(12),
-                  //   ),
-                  //   child: Text(
-                  //     "${_currentIndex + 1} / ${_images.length}",
-                  //     style: const TextStyle(
-                  //       color: Colors.white,
-                  //       fontSize: 12,
-                  //       fontWeight: FontWeight.w500,
-                  //     ),
-                  //   ),
-                  // ),
-                  // const SizedBox(width: 4),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(_images.length, (index) {
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 400),
-                        margin: const EdgeInsets.symmetric(horizontal: 3),
-                        height: 4.sp,
-                        width: _currentIndex == index ? 20.sp : 12.sp,
-                        decoration: BoxDecoration(
-                          color: _currentIndex == index
-                              ? AppColors.navyBlue
-                              : Colors.grey.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(10),
+                  // 🖼 Banner on top
+                  Container(
+                    color: Colors.grey.shade100,
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 60.sp,
                         ),
-                      );
-                    }),
+                        _buildBannerSlider(),
+                      ],
+                    ),
                   ),
+
+
+
+                  // 🔍 Search bar at bottom
+
                 ],
               ),
             ),
           ),
+
+
+
 
           SliverToBoxAdapter(
             child: Container(
@@ -278,7 +341,15 @@ class _StudentHomePageState extends State<StudentHomePage>
 
                   // ➕ Add Goal button
                   TextButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DailyGoalScreen(),
+                        ),
+                      );
+
+                    },
                     style: TextButton.styleFrom(
                       backgroundColor: Colors.blue.shade50,
                       padding: EdgeInsets.symmetric(
@@ -352,126 +423,136 @@ class _StudentHomePageState extends State<StudentHomePage>
           ),
           // Premium Progress with Circular Indicator
           SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.all(5.sp),
-              child: Container(
-                padding: EdgeInsets.all(16.w),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // 🌀 Circular Progress Ring
-                    Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Container(
-                          width: 64.w,
-                          height: 64.w,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.greenAccent.shade400,
-                                Colors.teal.shade400,
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 54.w,
-                          height: 54.w,
-                          child: TweenAnimationBuilder<double>(
-                            tween: Tween(begin: 0.0, end: 0.75),
-                            duration: const Duration(milliseconds: 1500),
-                            curve: Curves.easeInOutCubic,
-                            builder: (context, value, _) =>
-                                CircularProgressIndicator(
-                                  value: value,
-                                  strokeWidth: 5,
-                                  backgroundColor: Colors.white.withOpacity(
-                                    0.2,
-                                  ),
-                                  valueColor: AlwaysStoppedAnimation(
-                                    Colors.white,
-                                  ),
-                                ),
-                          ),
-                        ),
-                        Text(
-                          "75%",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14.sp,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(width: 18.w),
-
-                    // 📊 Progress Info
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+            child: GestureDetector(
+              onTap: (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>  WeeklyReportScreen(),
+                  ),
+                );
+              },
+              child: Padding(
+                padding: EdgeInsets.all(5.sp),
+                child: Container(
+                  padding: EdgeInsets.all(16.w),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // 🌀 Circular Progress Ring
+                      Stack(
+                        alignment: Alignment.center,
                         children: [
-                          Text(
-                            'Weekly Progress',
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.grey.shade900,
-                              letterSpacing: -0.2,
+                          Container(
+                            width: 64.w,
+                            height: 64.w,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.greenAccent.shade400,
+                                  Colors.teal.shade400,
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
                             ),
                           ),
-                          SizedBox(height: 6.h),
-                          TweenAnimationBuilder<double>(
-                            tween: Tween(begin: 0.0, end: 0.75),
-                            duration: const Duration(milliseconds: 1500),
-                            curve: Curves.easeOutCubic,
-                            builder: (context, value, _) {
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '${(value * 100).toInt()}% complete • 3/4 goals achieved',
-                                    style: TextStyle(
-                                      color: Colors.grey.shade700,
-                                      fontSize: 13.sp,
-                                      fontWeight: FontWeight.w500,
+                          SizedBox(
+                            width: 54.w,
+                            height: 54.w,
+                            child: TweenAnimationBuilder<double>(
+                              tween: Tween(begin: 0.0, end: 0.75),
+                              duration: const Duration(milliseconds: 1500),
+                              curve: Curves.easeInOutCubic,
+                              builder: (context, value, _) =>
+                                  CircularProgressIndicator(
+                                    value: value,
+                                    strokeWidth: 5,
+                                    backgroundColor: Colors.white.withOpacity(
+                                      0.2,
+                                    ),
+                                    valueColor: AlwaysStoppedAnimation(
+                                      Colors.white,
                                     ),
                                   ),
-                                  SizedBox(height: 8.h),
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(8.r),
-                                    child: LinearProgressIndicator(
-                                      value: value,
-                                      minHeight: 8.h,
-                                      backgroundColor: Colors.grey.shade200.withOpacity(0.6),
-                                      valueColor: AlwaysStoppedAnimation(
-                                        Colors.greenAccent.shade400,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
+                            ),
+                          ),
+                          Text(
+                            "75%",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14.sp,
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                      SizedBox(width: 18.w),
+
+                      // 📊 Progress Info
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Weekly Progress',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.grey.shade900,
+                                letterSpacing: -0.2,
+                              ),
+                            ),
+                            SizedBox(height: 6.h),
+                            TweenAnimationBuilder<double>(
+                              tween: Tween(begin: 0.0, end: 0.75),
+                              duration: const Duration(milliseconds: 1500),
+                              curve: Curves.easeOutCubic,
+                              builder: (context, value, _) {
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${(value * 100).toInt()}% complete • 3/4 goals achieved',
+                                      style: TextStyle(
+                                        color: Colors.grey.shade700,
+                                        fontSize: 13.sp,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8.h),
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      child: LinearProgressIndicator(
+                                        value: value,
+                                        minHeight: 8.h,
+                                        backgroundColor: Colors.grey.shade200.withOpacity(0.6),
+                                        valueColor: AlwaysStoppedAnimation(
+                                          Colors.greenAccent.shade400,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -523,7 +604,14 @@ class _StudentHomePageState extends State<StudentHomePage>
                       ),
                     ),
                     TextButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>  AllCoursesScreen(appBar: '',),
+                          ),
+                        );
+                      },
                       style: TextButton.styleFrom(
                         backgroundColor: Colors.blue.shade50,
                         padding: EdgeInsets.symmetric(
@@ -669,7 +757,14 @@ class _StudentHomePageState extends State<StudentHomePage>
                       ),
                     ),
                     TextButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>  RecommendedForYouScreen(title: 'Recommended For You',),
+                          ),
+                        );
+                      },
 
                       label: Text(
                         'See All',
@@ -700,7 +795,7 @@ class _StudentHomePageState extends State<StudentHomePage>
             sliver: SliverGrid(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: 0.73, // better height balance
+                childAspectRatio: 0.75, // better height balance
                 crossAxisSpacing: 10,
                 mainAxisSpacing: 10,
               ),
@@ -819,69 +914,7 @@ class _StudentHomePageState extends State<StudentHomePage>
     );
   }
 
-  Widget _buildPremiumGoalCard(
-    String title,
-    IconData icon,
-    Color color,
-    bool isCompleted,
-  ) {
-    return Container(
-      width: 140,
-      padding: EdgeInsets.all(12),
 
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: Offset(0, 4),
-          ),
-        ],
-        border: Border.all(
-          color: Colors.grey.shade400,
-          width: 1.sp, // ✅ responsive border thickness
-        ),
-        // border: Border.all(color: Colors.grey[200]!, width: 1),
-        gradient: isCompleted
-            ? LinearGradient(
-                colors: [Colors.green.shade50, Colors.white],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              )
-            : null,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          AnimatedContainer(
-            duration: Duration(milliseconds: 500),
-            transform: Matrix4.identity()..scale(isCompleted ? 1.1 : 1.0),
-            child: Icon(icon, size: 32, color: color),
-          ),
-          SizedBox(height: 8),
-          Flexible(
-            child: Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey[700],
-              ),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 2,
-            ),
-          ),
-          if (isCompleted) ...[
-            SizedBox(height: 4),
-            Icon(Icons.check_circle, color: Colors.green.shade500, size: 18),
-          ],
-        ],
-      ),
-    );
-  }
 
   Widget _buildPremiumCourseCard(int index) {
     final List<String> images = [
@@ -916,100 +949,107 @@ class _StudentHomePageState extends State<StudentHomePage>
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min, // ✅ prevents forced expansion
         children: [
           // 🖼 Course Image
           ClipRRect(
-            borderRadius:  BorderRadius.vertical(top: Radius.circular(10.sp)),
-            child: Image.network(
-              images[index % images.length],
-              height: 148.sp,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(10.sp)),
+            child: CachedNetworkImage(
+              imageUrl: images[index % images.length] ?? '',
+              height: 155.sp,
               width: double.infinity,
               fit: BoxFit.cover,
+              // 🌀 Show shimmer-like loading
+              placeholder: (context, url) => Container(
+                color: Colors.grey.shade300,
+              ),
+              // 🖼 Show default image if URL is null or error
+              errorWidget: (context, url, error) => Image.asset(
+                'assets/noimg.jpg',
+                height: 155.sp,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
-
           // 📘 Course Details
-          Padding(
-            padding:  EdgeInsets.all(5.sp),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  titles[index % titles.length],
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: Colors.grey.shade900,
-                  ),
-                ),
-                const SizedBox(height: 0),
-                Row(
-                  children: [
-                    const Icon(Icons.star, color: Colors.amber, size: 16),
-                    const SizedBox(width: 4),
-                    Text(
-                      '4.${index + 3} ★',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      '₹${999 + index * 100}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue.shade700,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 0),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue.shade700,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    minimumSize: const Size.fromHeight(25),
-                  ),
-                  child:  Text(
-                    'Enroll Now',
+          Flexible( // ✅ ensures content fits in remaining height
+            child: Padding(
+              padding: EdgeInsets.all(6.sp),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    titles[index % titles.length],
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 12.sp,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      fontSize: 14,
+                      color: Colors.grey.shade900,
                     ),
                   ),
-                ),
-              ],
+                  SizedBox(height: 3.sp),
+
+                  Row(
+                    children: [
+                      const Icon(Icons.star, color: Colors.amber, size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        '4.${index + 3} ★',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        '₹${999 + index * 100}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue.shade700,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 4.sp),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 28.sp,
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue.shade700,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        padding: EdgeInsets.zero,
+                      ),
+                      child: Text(
+                        'Enroll Now',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
       ),
     );
+
   }
 }
 
-// Dummy Course Detail Page
-class CourseDetailPage extends StatelessWidget {
-  final Map<String, dynamic> course;
-
-  const CourseDetailPage({super.key, required this.course});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(course['title'])),
-      body: Center(child: Text('Course Details for ${course['title']}')),
-    );
-  }
-}
 
 
 
@@ -1033,18 +1073,19 @@ class _LatestNewsSectionState extends State<LatestNewsSection> {
     },
     {
       "image":
-      "https://cdn.pixabay.com/photo/2016/02/19/10/00/code-1209641_1280.jpg",
-      "title": "NEET Exam 2025: New Syllabus Announced for Students"
-    },
-    {
-      "image":
       "https://cdn.pixabay.com/photo/2015/07/17/22/43/student-849826_1280.jpg",
       "title": "Top 10 Law Colleges in India as per 2025 Rankings"
     },
     {
       "image":
-      "https://cdn.pixabay.com/photo/2017/08/06/22/01/learn-2593648_1280.jpg",
-      "title": "UPSC Prelims 2025 Schedule Released by Commission"
+      "https://thestudybuzz.com/wp-content/uploads/2024/05/Study-buzz-Blog-banner-14-1024x576.png",
+      "title": "NEET Exam 2025: New Syllabus Announced for Students"
+    },
+
+    {
+      "image":
+      "https://cdn.pixabay.com/photo/2015/07/17/22/43/student-849826_1280.jpg",
+      "title": "Top 10 Law Colleges in India as per 2025 Rankings"
     },
   ];
 
