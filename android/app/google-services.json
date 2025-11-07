@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "675723129823",
+    "project_id": "fix-my-class",
+    "storage_bucket": "fix-my-class.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:675723129823:android:b9a7ab387d1d870e84ca6a",
+        "android_client_info": {
+          "package_name": "com.fixmyclass.fixmyclass"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBW0lyEeUM43UGGLb575YPi0qq0BcehC0w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

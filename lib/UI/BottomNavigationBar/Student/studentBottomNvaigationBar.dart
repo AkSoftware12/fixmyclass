@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:fixmyclass/UI/BottomNavigationBar/Student/Notification/notification.dart';
 import 'package:fixmyclass/Utils/HexColorCode/HexColor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +13,10 @@ import 'Location/location_screen.dart';
 import 'SeeAll/AllCourse/all_course_screen.dart';
 import 'StudentCourse/student_course.dart';
 import 'StudentHome/student_home.dart';
+import 'StudentPractice/AllPracticsList/all_practics_list.dart';
 import 'StudentPractice/student_practice.dart';
 import 'StudentProfile/student_profile.dart';
+import 'StudentQuiz/QuizList/quiz_list.dart';
 import 'StudentQuiz/student_quiz.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
@@ -56,8 +59,10 @@ class _HomePageState extends State<BottomNavigationBarScreen> {
             StudentHomePage(),
             AllCoursesScreen(appBar: 'appBar',),
             // CoursesScreen(),
-            PracticeScreen(),
-            QuizPracticeScreen(),
+            AllPracticsList(),
+            // PracticeScreen(),
+            AllQuizList(),
+            // QuizPracticeScreen(),
             ProfileScreen(),
           //   const IVRCallScreen(),
           //   const HelplineScreen(),
@@ -261,8 +266,10 @@ class _CustomAppBarState extends State<CustomAppBar> {
                 ],
               ),
               onPressed: () {
-                // Handle notifications
-              },
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const NotificationScreen()),
+                );              },
             ),
           ),
         ),

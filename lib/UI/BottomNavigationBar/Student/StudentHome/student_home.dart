@@ -1,14 +1,12 @@
 import 'dart:async';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:fixmyclass/UI/BottomNavigationBar/Student/SeeAll/AllCourse/all_course_screen.dart';
 import 'package:fixmyclass/UI/BottomNavigationBar/Student/SeeAll/RecommendedForYou/recommended_screen.dart';
-import 'package:fixmyclass/Utils/HexColorCode/HexColor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import 'package:lottie/lottie.dart';
 import '../../../../Utils/color.dart';
 import '../SeeAll/DailyGoals/daily_goals_screen.dart';
 import '../WeeklyProgressReport/weekly_report_screen.dart';
@@ -40,7 +38,7 @@ class _StudentHomePageState extends State<StudentHomePage>
     _pageController = PageController();
 
     // 🔁 Auto-slide
-    Future.delayed(const Duration(seconds: 4), _autoSlide);
+    // Future.delayed(const Duration(seconds: 4), _autoSlide);
   }
 
   void _autoSlide() {
@@ -269,7 +267,7 @@ class _StudentHomePageState extends State<StudentHomePage>
                     child: Column(
                       children: [
                         Container(
-                          height: 60.sp,
+                          height: 55.sp,
                         ),
                         _buildBannerSlider(),
                       ],
@@ -422,6 +420,9 @@ class _StudentHomePageState extends State<StudentHomePage>
             ),
           ),
           // Premium Progress with Circular Indicator
+
+
+
           SliverToBoxAdapter(
             child: GestureDetector(
               onTap: (){

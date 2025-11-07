@@ -62,9 +62,8 @@ class _SplashScreenState extends State<SplashScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.all(Radius.circular(15.sp))
               ),
-              child:   ClipRRect(
+              child: ClipRRect(
                 borderRadius: BorderRadius.circular(20.sp),
-
                 child: Image.asset(
                   'assets/playstore.png',
                   width: 80.sp,
