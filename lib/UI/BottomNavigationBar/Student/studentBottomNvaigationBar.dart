@@ -1,26 +1,30 @@
 import 'dart:convert';
 import 'package:fixmyclass/UI/BottomNavigationBar/Student/Notification/notification.dart';
+import 'package:fixmyclass/UI/BottomNavigationBar/Student/WeeklyProgressReport/weekly_report_screen.dart';
 import 'package:fixmyclass/Utils/HexColorCode/HexColor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../Utils/color.dart';
 import '../../../Utils/string.dart';
 import '../../Login/Login/login.dart';
+import 'LiveClassList/live_class_list.dart';
 import 'Location/location_screen.dart';
 import 'SeeAll/AllCourse/all_course_screen.dart';
 import 'StudentCourse/student_course.dart';
 import 'StudentHome/student_home.dart';
+import 'StudentNotes/student_notes.dart';
 import 'StudentPractice/AllPracticsList/all_practics_list.dart';
+import 'StudentPractice/PracticesSetsList/practices_set_list.dart';
 import 'StudentPractice/student_practice.dart';
 import 'StudentProfile/student_profile.dart';
 import 'StudentQuiz/QuizList/quiz_list.dart';
 import 'StudentQuiz/student_quiz.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-
 
 class BottomNavigationBarScreen extends StatefulWidget {
   const BottomNavigationBarScreen({super.key});
@@ -34,14 +38,12 @@ class _HomePageState extends State<BottomNavigationBarScreen> {
   int selected = 0;
   final controller = PageController();
 
-
-
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
       backgroundColor: Colors.white,
       key: _scaffoldKey,
-      appBar:  CustomAppBar(branchName: 'Virat Coaching',),
+      appBar: CustomAppBar(branchName: 'Virat Coaching'),
       drawer: CustomDrawer(),
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: selected,
@@ -57,30 +59,27 @@ class _HomePageState extends State<BottomNavigationBarScreen> {
           physics: const NeverScrollableScrollPhysics(), // 👈 Swipe disable
           children: [
             StudentHomePage(),
-            AllCoursesScreen(appBar: 'appBar',),
+            // AllCoursesScreen(appBar: 'appBar'),
+            LiveClassScreen(appBar: '',),
             // CoursesScreen(),
             AllPracticsList(),
             // PracticeScreen(),
-            AllQuizList(),
+            AllQuizList(appBar: '',),
             // QuizPracticeScreen(),
             ProfileScreen(),
-          //   const IVRCallScreen(),
-          //   const HelplineScreen(),
-          //   const SOSScreen(),
-           ],
+            //   const IVRCallScreen(),
+            //   const HelplineScreen(),
+            //   const SOSScreen(),
+          ],
         ),
       ),
     );
   }
 }
 
-
-
-
-
-
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String branchName;
+
   const CustomAppBar({super.key, required this.branchName});
 
   @override
@@ -122,8 +121,10 @@ class _CustomAppBarState extends State<CustomAppBar> {
     );
 
     // ✅ Convert to city name
-    List<Placemark> placemarks =
-    await placemarkFromCoordinates(position.latitude, position.longitude);
+    List<Placemark> placemarks = await placemarkFromCoordinates(
+      position.latitude,
+      position.longitude,
+    );
 
     if (placemarks.isNotEmpty) {
       setState(() {
@@ -158,7 +159,10 @@ class _CustomAppBarState extends State<CustomAppBar> {
                   ],
                 ),
                 child: IconButton(
-                  icon: Icon(Icons.dashboard_rounded, color: AppColors.navyBlue),
+                  icon: Icon(
+                    Icons.dashboard_rounded,
+                    color: AppColors.navyBlue,
+                  ),
                   onPressed: () {
                     Scaffold.of(context).openDrawer();
                   },
@@ -173,7 +177,9 @@ class _CustomAppBarState extends State<CustomAppBar> {
               onTap: () async {
                 final result = await Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const LocationPickerScreen()),
+                  MaterialPageRoute(
+                    builder: (_) => const LocationPickerScreen(),
+                  ),
                 );
 
                 if (result != null && result is String) {
@@ -197,7 +203,6 @@ class _CustomAppBarState extends State<CustomAppBar> {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-
                     ],
                   ),
                   SizedBox(height: 4.h),
@@ -205,10 +210,11 @@ class _CustomAppBarState extends State<CustomAppBar> {
                   // ✅ Branch and City info with icons
                   Row(
                     children: [
-
-                      Icon(Icons.location_on_rounded,
-                                               color:Colors.white
-                          , size: 14.sp),
+                      Icon(
+                        Icons.location_on_rounded,
+                        color: Colors.white,
+                        size: 14.sp,
+                      ),
                       SizedBox(width: 2.w),
                       Text(
                         city ?? 'Fetching...',
@@ -224,7 +230,6 @@ class _CustomAppBarState extends State<CustomAppBar> {
               ),
             ),
           ),
-
         ],
       ),
       actions: [
@@ -233,8 +238,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
           padding: EdgeInsets.all(8.0),
           child: Container(
             decoration: BoxDecoration(
-              color:  Colors.grey
-                  .withOpacity(0.3),
+              color: Colors.grey.withOpacity(0.3),
               shape: BoxShape.circle,
             ),
             child: IconButton(
@@ -251,7 +255,10 @@ class _CustomAppBarState extends State<CustomAppBar> {
                         color: Colors.red,
                         shape: BoxShape.circle,
                       ),
-                      constraints: BoxConstraints(minWidth: 12.sp, minHeight: 12.sp),
+                      constraints: BoxConstraints(
+                        minWidth: 12.sp,
+                        minHeight: 12.sp,
+                      ),
                       child: Text(
                         '3', // Dynamic unread count
                         style: TextStyle(
@@ -269,7 +276,8 @@ class _CustomAppBarState extends State<CustomAppBar> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const NotificationScreen()),
-                );              },
+                );
+              },
             ),
           ),
         ),
@@ -278,7 +286,6 @@ class _CustomAppBarState extends State<CustomAppBar> {
     );
   }
 }
-
 
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -294,7 +301,7 @@ class CustomBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final items = [
       {'icon': Icons.home, 'label': 'Home'},
-      {'icon': Icons.book, 'label': 'Courses'},
+      {'icon': Icons.live_tv_sharp, 'label': 'Live Class'},
       {'icon': Icons.question_answer, 'label': 'Practice'},
       {'icon': Icons.quiz_outlined, 'label': 'Quizzes'},
       {'icon': Icons.person, 'label': 'Profile'},
@@ -302,10 +309,9 @@ class CustomBottomNavBar extends StatelessWidget {
 
     return SafeArea(
       child: Container(
-        height: 60.h, // ✅ consistent across all screens (ScreenUtil handles DPI & ratio)
-        decoration: BoxDecoration(
-          color: AppColors.navyBlue,
-        ),
+        height: 60.h,
+        // ✅ consistent across all screens (ScreenUtil handles DPI & ratio)
+        decoration: BoxDecoration(color: AppColors.navyBlue),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: List.generate(items.length, (index) {
@@ -317,15 +323,23 @@ class CustomBottomNavBar extends StatelessWidget {
                 duration: const Duration(milliseconds: 200),
                 width: 70.w,
                 decoration: BoxDecoration(
-                  color: isSelected ? HexColor('#00171f') : Colors.transparent,
+                  color: isSelected ? index==1? HexColor('FF0000'): HexColor('#00171f')
+                  : Colors.transparent,
                   // borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    index==1?
                     Icon(
                       items[index]['icon'] as IconData,
-                      color: Colors.white,
+                    color:Colors.white,
+                    // color:index==1? HexColor('FF0000'):Colors.white,
+                      size: isSelected ? 22.sp : 22.sp,
+                    ): Icon(
+                      items[index]['icon'] as IconData,
+                      color:Colors.white,
+                      // color:index==1? HexColor('FF0000'):Colors.white,
                       size: isSelected ? 22.sp : 22.sp,
                     ),
                     SizedBox(height: 2.h),
@@ -333,9 +347,11 @@ class CustomBottomNavBar extends StatelessWidget {
                       items[index]['label'] as String,
                       style: TextStyle(
                         fontSize: 10.sp,
-                        fontWeight:
-                        isSelected ? FontWeight.bold : FontWeight.w600,
-                        color: Colors.white,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.w600,
+                        color:Colors.white
+                        // index==1? HexColor('FF0000'):Colors.white,
                       ),
                     ),
                   ],
@@ -349,162 +365,189 @@ class CustomBottomNavBar extends StatelessWidget {
   }
 }
 
-
-
-
-
-
-
-
-
-
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      // Use a subtle, light background
-      backgroundColor: AppColors.lightGray,
+      backgroundColor: AppColors.navyBlue,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.horizontal(right: Radius.circular(0.0)),
+        borderRadius: BorderRadius.horizontal(right: Radius.circular(0)),
       ),
       child: SafeArea(
         child: Column(
           children: [
-            Container(
-              height: 20.sp,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+            // 🔹 Drawer Close Button
+            Align(
+              alignment: Alignment.topRight,
+              child: IconButton(
+                icon: Icon(Icons.close, color: Colors.white, size: 25.sp),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+
+            // 🔹 Header Section
+            _buildHeader(),
+
+            Divider(thickness: 1.sp, color: Colors.grey.shade300),
+
+            // 🔹 Menu List
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.symmetric(horizontal: 10.sp),
                 children: [
-                  IconButton(
-                    icon: Icon(Icons.close, color: Colors.black,size: 25.sp,),
-                    onPressed: () {
-                      Navigator.pop(context); // Drawer band karega
+                  _buildTile(
+                    icon: Icons.dashboard_rounded,
+                    title: 'Dashboard',
+                    onTap: () {
+                      Navigator.pop(context);
                     },
                   ),
+                  _buildTile(
+                    icon: Icons.quiz_rounded,
+                    title: 'All Quizzes',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) =>  AllQuizList(appBar: 'App',)),
+                      );
+                    },
+                  ),
+                  _buildTile(
+                    icon: Icons.school_rounded,
+                    title: 'Practice Sets',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) =>  PracticeSetsScreen()),
+                      );
+                    },
+                  ),
+                  _buildTile(
+                    icon: Icons.book_rounded,
+                    title: 'Notes & Study Material',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) =>  NotesMaterialsScreen()),
+                      );
+                    },
+                  ),
+                  _buildTile(
+                    icon: Icons.insert_chart_rounded,
+                    title: 'Weekly Reports',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) =>  WeeklyReportScreen()),
+                      );
+                    },
+                  ),
+                  _buildTile(
+                    icon: Icons.notifications_active_rounded,
+                    title: 'Notifications',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const NotificationScreen()),
+                      );
+                    },
+                  ),
+                  _buildTile(
+                    icon: Icons.info_outline_rounded,
+                    title: 'About Institute',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) =>  WeeklyReportScreen()),
+                      );
+                    },
+                  ),
+                  _buildTile(
+                    icon: Icons.policy_rounded,
+                    title: 'Privacy Policy',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) =>  WeeklyReportScreen()),
+                      );
+                    },
+                  ),
+                  _buildTile(
+                    icon: Icons.support_agent_rounded,
+                    title: 'Help & Support',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) =>  WeeklyReportScreen()),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  // 🔹 Logout Button
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12.sp),
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red.shade50,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        padding: EdgeInsets.symmetric(vertical: 10.h),
+                      ),
+                      icon: Icon(Icons.logout, color: Colors.red, size: 22.sp),
+                      label: Text(
+                        'Logout',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      onPressed: () async {
+                        SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        await prefs.clear();
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const LoginScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                 ],
               ),
             ),
 
-            // Header
-            _buildHeader(),
-            Divider(
-              thickness: 2.sp,
-              color: Colors.grey.shade300,
-            ),
-
-            // Menu Items
-            Expanded(
-              child: ListView(
-                padding:  EdgeInsets.symmetric(horizontal: 5.sp),
-                children: [
-                  _buildListTile(
-                    context: context,
-                    icon: Icons.person,
-                    title: 'Profile',
-                    onTap: () {
-                      // Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(builder: (context)=> ProfileScreen()));
-                    },
-                  ),
-                  _buildListTile(
-                    context: context,
-                    icon: Icons.qr_code,
-                    title: 'Activate New QR Sticker',
-                    onTap: () {
-                      // Navigator.push(context, MaterialPageRoute(builder: (context) => QRActive()));
-
-                    },
-                  ),
-                  _buildListTile(
-                    context: context,
-                    icon: Icons.shop,
-                    title: 'My Orders/Products',
-                    onTap: () {
-                      // Navigator.push(context, MaterialPageRoute(builder: (_) => OrderHistoryScreen()));
-
-                    },
-                  ),
-                  // _buildListTile(
-                  //   context: context,
-                  //   icon: Icons.share,
-                  //   title: 'Share Tap',
-                  //   onTap: () {},
-                  // ),
-                  // _buildListTile(
-                  //   context: context,
-                  //   icon: Icons.account_balance_wallet,
-                  //   title: 'Wallet',
-                  //   onTap: () {},
-                  // ),
-                  // _buildListTile(
-                  //   context: context,
-                  //   icon: Icons.touch_app,
-                  //   title: 'Active/Deactive QR',
-                  //   onTap: () {},
-                  // ),
-                  // _buildListTile(
-                  //   context: context,
-                  //   icon: Icons.block,
-                  //   title: 'Block A Number',
-                  //   onTap: () {},
-                  // ),
-                  // _buildListTile(
-                  //   context: context,
-                  //   icon: Icons.bookmark,
-                  //   title: 'My Story',
-                  //   onTap: () {},
-                  // ),
-                  // _buildListTile(
-                  //   context: context,
-                  //   icon: Icons.call,
-                  //   title: 'Call Log',
-                  //   onTap: () {},
-                  // ),
-                  _buildListTile(
-                    context: context,
-                    icon: Icons.notifications,
-                    title: 'Notification',
-                    onTap: () {},
-                  ),
-                  _buildListTile(
-                    context: context,
-                    icon: Icons.policy,
-                    title: 'Terms & Policy',
-                    onTap: () {},
-                  ),
-                  _buildListTile(
-                    context: context,
-                    icon: Icons.description,
-                    title: 'Grievances',
-                    onTap: () {},
-                  ),
-                  _buildListTile(
-                    context: context,
-                    icon: Icons.bloodtype,
-                    title: 'Blood Donation',
-                    onTap: () {},
-                  ),
-              _buildListTile(
-                context: context,
-                icon: Icons.logout,
-                title: 'Logout',
-                textColor: Colors.red,
-                iconColor: Colors.red,
-                onTap: () async {
-                  SharedPreferences prefs = await SharedPreferences.getInstance();
-                  await prefs.clear(); // ✅ Clear all stored data
-
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => LoginScreen()),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: FutureBuilder<PackageInfo>(
+                future: PackageInfo.fromPlatform(),
+                builder: (context, snapshot) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // 🔹 App Version Text
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 8.h),
+                        child: Text(
+                          'v${snapshot.data!.version}',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
                   );
-
                 },
-              )
-                ],
               ),
             ),
           ],
@@ -513,80 +556,83 @@ class CustomDrawer extends StatelessWidget {
     );
   }
 
+  // ================= Header Section =================
   Widget _buildHeader() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 0.0),
+      padding: EdgeInsets.only(bottom: 10.h),
+      // decoration: BoxDecoration(
+      //   gradient: LinearGradient(
+      //     colors: [AppColors.primaryBlue, AppColors.navyBlue],
+      //     begin: Alignment.topLeft,
+      //     end: Alignment.bottomRight,
+      //   ),
+      // ),
       child: Column(
         children: [
           CircleAvatar(
             radius: 40.sp,
-            backgroundImage: const AssetImage('assets/playstore.png'),
-            backgroundColor: AppColors.lightGray,
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.primaryBlue, width: 3.sp),
-              ),
+            backgroundColor: Colors.white,
+            child: ClipOval(
+              child: Image.asset('assets/playstore.png', fit: BoxFit.cover),
             ),
           ),
-           SizedBox(height: 8.sp),
+          SizedBox(height: 10.h),
           Text(
             'Ravikant Saini',
             style: TextStyle(
-              color: AppColors.navyBlue,
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w700,
+              color: Colors.white,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 8.sp),
-
+          Text(
+            'Student | NEET Batch 2025',
+            style: TextStyle(color: Colors.white70, fontSize: 12.sp),
+          ),
+          SizedBox(height: 10.h),
         ],
       ),
     );
   }
 
-  Widget _buildListTile({
-    required BuildContext context,
+  // ================= List Tile Reusable =================
+  Widget _buildTile({
     required IconData icon,
     required String title,
     required VoidCallback onTap,
-    Color textColor = AppColors.primaryBlue,
-    Color iconColor = AppColors.primaryBlue,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2.0),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12.0),
-          // Add a splash color for a nice touch
-          child: Padding(
-            padding:  EdgeInsets.symmetric(
-              horizontal: 16.sp,
-              vertical: 12.sp,
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  icon,
-                  color:  AppColors.navyBlue,
-                  size: 24.sp,
-                ),
-                 SizedBox(width: 12.sp),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      color:  AppColors.navyBlue,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
+      padding: EdgeInsets.symmetric(vertical: 3.h),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12.r),
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 12.w),
+          // decoration: BoxDecoration(
+          //   borderRadius: BorderRadius.circular(12.r),
+          //   color: Colors.white,
+          // ),
+          child: Row(
+            children: [
+              Icon(icon, color: Colors.white, size: 22.sp),
+              SizedBox(width: 10.w),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ],
-            ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 16.sp,
+                color: Colors.white,
+              ),
+            ],
           ),
         ),
       ),

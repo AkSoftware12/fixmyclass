@@ -5,7 +5,8 @@ import '../../../../../Utils/color.dart';
 import '../student_quiz.dart';
 
 class AllQuizList extends StatefulWidget {
-  const AllQuizList({super.key});
+  final String appBar;
+  const AllQuizList({super.key, required this.appBar});
 
   @override
   State<AllQuizList> createState() => _AllQuizListState();
@@ -100,16 +101,16 @@ class _AllQuizListState extends State<AllQuizList> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
           'All Quiz',
           style: TextStyle(
-            color: AppColors.navyBlue,
+            color: widget.appBar.isNotEmpty?Colors.white:AppColors.navyBlue,
             fontSize: 15.sp,
             fontWeight: FontWeight.w800,
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: widget.appBar.isNotEmpty?AppColors.navyBlue:Colors.white,
         centerTitle: false,
         actions: [
           Padding(
